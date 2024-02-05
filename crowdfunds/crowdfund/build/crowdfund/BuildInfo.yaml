@@ -1,0 +1,28 @@
+---
+compiled_package_info:
+  package_name: crowdfund
+  address_alias_instantiation:
+    SupraOracle: 4dedb6c492a901d21dfdbec38e2261802df0edd436a02c247a7934c4d7539301
+    crowdfund: "0000000000000000000000000000000000000000000000000000000000000000"
+    std: "0000000000000000000000000000000000000000000000000000000000000001"
+    sui: "0000000000000000000000000000000000000000000000000000000000000002"
+  source_digest: 0EC2158BF3FE6D054E8BD34BC7873970C815E6DFDB63F0012CC5EF7567F47615
+  build_flags:
+    dev_mode: true
+    test_mode: true
+    generate_docs: false
+    install_dir: ~
+    force_recompilation: false
+    lock_file: ~
+    fetch_deps_only: false
+    skip_fetch_latest_git_deps: false
+    default_flavor: ~
+    default_edition: ~
+    deps_as_root: false
+    silence_warnings: false
+    warnings_are_errors: false
+    additional_named_addresses: {}
+dependencies:
+  - MoveStdlib
+  - Sui
+  - SupraOracle

@@ -1,0 +1,13 @@
+[package]
+name = "SupraOracle"
+version = "0.0.1"
+published-at = "0x4dedb6c492a901d21dfdbec38e2261802df0edd436a02c247a7934c4d7539301"
+
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet-v1.14.2" }
+
+
+[addresses]
+sui = "0x2"
+SupraOracle = "0x4dedb6c492a901d21dfdbec38e2261802df0edd436a02c247a7934c4d7539301"

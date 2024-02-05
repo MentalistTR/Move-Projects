@@ -1,0 +1,11 @@
+[package]
+name = "crowdfund"
+version = "0.0.1"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir="crates/sui-framework/packages/sui-framework/", rev = "mainnet-v1.14.2" }
+SupraOracle = { local = "../supra-svalue-feed-framework" }
+
+[addresses]
+crowdfund = "0x0"
+sui = "0x2"
