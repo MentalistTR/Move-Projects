@@ -1,0 +1,14 @@
+{
+    "packageId": "0x58b8c0e231193d55b48e0facd01ffdbe3eb93069b050a048af53e06a5c9e4171",
+    "fundProject": {
+        "fundBalances": "0xf60475bdb6e168a22e8f3e54f3e95c4992a19188b6cb9df73d2738c4640a8e04",
+        "shareholders": "0x863d85f01cff752dd8ddcc3868982871dd18fa83f7ba50c45e538d80a233fe26",
+        "AdminCap": "0x7257e4fea517db9ec87f9b1411451a679c137bee88a72489bfe1ae44dbd21d63"
+    },
+    "usdc": {
+        "USDCcointype": "0x58b8c0e231193d55b48e0facd01ffdbe3eb93069b050a048af53e06a5c9e4171::usdc::USDC"
+    },
+    "usdt": {
+        "USDTcointype": "0x58b8c0e231193d55b48e0facd01ffdbe3eb93069b050a048af53e06a5c9e4171::usdt::USDT"
+    }
+}

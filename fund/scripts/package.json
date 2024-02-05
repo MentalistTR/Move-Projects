@@ -1,0 +1,24 @@
+{
+  "name": "scripts",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "DepositSuiBag": "bun run DepositSui.ts",
+    "AdminWithdraw": "bun transactions.ts AdminWithdraw ",
+    "SetShareHolders": "bun transactions.ts SetShareHolders",
+   "FundDistribution": "bun transactions.ts FundDistribution",
+   "ShareholderWithdraw":"bun transactions.ts ShareholderWithdraw"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@mysten/dapp-kit": "^0.11.1",
+    "@mysten/sui.js": "0.48.1",
+    "bignumber.js": "^9.1.2"
+  }
+
+}
