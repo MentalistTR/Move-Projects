@@ -11,7 +11,7 @@ module BusTicket::ticket {
     use sui::coin::{Self, Coin};
     use sui::sui::SUI;
     use sui::event;
-    use sui::tx_context::{Self, TxContext};
+    use sui::tx_context::{Self, TxContext, sender};
     use sui::table::{Self, Table};
     use sui::balance:: {Self, Balance};
 
@@ -69,8 +69,14 @@ module BusTicket::ticket {
 
     // =================== Initializer ===================    
 
-    fun init() {
+    fun init(ctx: &mut TxContext) {
+        transfer::share_object(Station{
+            id: object::new(ctx),
+            balance: balance::zero(),
+            consolidation: table::new<String, Table<String, ID>>(ctx)
+        });
 
+        transfer::transfer(AdminCap{id: object::new(ctx)}, sender(ctx));
     }
 
     // === Public-Mutative Functions ===
