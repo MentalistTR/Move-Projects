@@ -21,6 +21,9 @@ module BusTicket::ticket {
     // === Friends ===
 
     // =================== Errors ===================
+    const ERROR_INVALID_PRICE : u64 = 0;
+    const ERROR_TIME_IS_UP : u64 = 1;
+    const ERROR_INVALID_SEED_NUMBER : u64 = 2;
 
     // === Constants ===
 
@@ -40,17 +43,18 @@ module BusTicket::ticket {
         from: String,
         to: String,
         seed_num: u8,
-        seed: TableVec<address>,
+        seed: Table<u8, address>,
         price: u64,
         start: u64,
         end: u64
     }
 
-    struct Ticket has store, copy, drop {
+    struct Ticket has key, store {
+        id: UID,
         bus: ID,
         owner: address,
         launch_time: u64,
-        seed_no: u64
+        seed_no: u8
     }
 
     struct AdminCap has key {
@@ -63,10 +67,9 @@ module BusTicket::ticket {
         owner: ID,
         from: String,
         to: String,
-        seed: vector<address>,
         price: u64,
         start: u64,
-        send: u64
+        end: u64
     }
 
     // =================== Initializer ===================    
@@ -120,19 +123,45 @@ module BusTicket::ticket {
             from: from_,
             to: to_,
             seed_num: seeds,
-            seed: table_vec::empty(ctx),
+            seed: table::new(ctx),
             price: price_,
             start: starts,
-            end : remaining_
+            end: remaining_
+        });
+
+        event::emit(BusCreated{
+            owner: inner_,
+            from: from_,
+            to: to_,
+            price: price_,
+            start: starts,
+            end: remaining_
         });
     }
 
     // Users can buy tickets
-    public fun buy() {
-
+    public fun buy(self: &mut Station, bus: &mut Bus, coin: Coin<SUI>, seed_no_: u8, clock: &Clock, ctx: &mut TxContext) {
+        assert!(coin::value(&coin) >= bus.price, ERROR_INVALID_PRICE);
+        assert!(timestamp_ms(clock) < bus.end, ERROR_TIME_IS_UP);
+        assert!(seed_no_ <= bus.seed_num, ERROR_INVALID_SEED_NUMBER);
+        // take the seed spot from table 
+        table::add(&mut bus.seed, seed_no_, sender(ctx));
+        // convert the coin to balance 
+        let balance_ = coin::into_balance(coin);
+        // add ticket price to station balance
+        balance::join(&mut self.balance, balance_);
+        // transfer the ticket object to buyer.
+        transfer::public_transfer(Ticket{
+            id: object::new(ctx),
+            bus: bus.owner,
+            owner: sender(ctx),
+            launch_time: bus.end,
+            seed_no: seed_no_
+        }, sender(ctx));   
     }
+
     // Users can rebate tickets before an hour 
-    public fun rebate() {
+    public fun refund() {
 
     }
 
