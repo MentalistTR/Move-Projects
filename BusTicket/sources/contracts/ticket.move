@@ -99,12 +99,8 @@ module BusTicket::ticket {
         let id_ = object::new(ctx);
         let inner_ = object::uid_to_inner(&id_);
         // check is the from_ avaliable in the table
-        if(!table::contains(&station.consolidation, from_)) {
-            // create a new bag
-            let bag_ = bag::new(ctx);
-            // add bag to the table
-            table::add(&mut station.consolidation, from_, bag_);
-        };
+        new_bag(station, from_, ctx);
+        // get bag from the table as borrow_mut
         let bag_ = table::borrow_mut(&mut station.consolidation, from_);
         // If the key value parameter is not valid in the bag, we add it.
         if(!bag::contains( bag_, to_)) {
@@ -162,6 +158,15 @@ module BusTicket::ticket {
     // === Public-Friend Functions ===
 
     // === Private Functions ===
+
+    fun new_bag(station: &mut Station, from: String, ctx: &mut TxContext) {
+        if(!table::contains(&station.consolidation, from)) {
+        // create a new bag
+        let bag_ = bag::new(ctx);
+        // add bag to the table
+        table::add(&mut station.consolidation, from, bag_);
+        };
+    }
 
     // === Test Functions ===
 
