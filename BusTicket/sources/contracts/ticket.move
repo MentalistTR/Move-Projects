@@ -2,22 +2,18 @@ module BusTicket::ticket {
 
     // === Imports ===
 
-    // use std::string::{Self,String};
-    // use std::vector;
-    // use std::debug;
+    use std::string::{Self, String};
+    use std::vector;
+    //use std::debug;
 
-    // use sui::transfer;
-    // use sui::object::{Self,UID,ID};
-    // use sui::url::{Self,Url};
-    // use sui::coin::{Self, Coin, CoinMetadata};
-    // use sui::sui::SUI;
-    // use sui::object_table::{Self,ObjectTable};
-    // use sui::event;
-    // use sui::tx_context::{Self,TxContext};
-    // use sui::vec_set::{Self, VecSet};
-    // use sui::table::{Self, Table};
-    // use sui::balance:: {Self, Balance};
-    // use sui::bag::{Self,Bag};
+    use sui::transfer;
+    use sui::object::{Self, UID, ID};
+    use sui::coin::{Self, Coin};
+    use sui::sui::SUI;
+    use sui::event;
+    use sui::tx_context::{Self, TxContext};
+    use sui::table::{Self, Table};
+    use sui::balance:: {Self, Balance};
 
     // === Friends ===
 
@@ -28,26 +24,46 @@ module BusTicket::ticket {
     // === Structs ===
 
     //share object that we keep ticket price 
-    struct Station has key {
-
+    struct Station has key, store {
+        id: UID,
+        balance: Balance<SUI>,
+        consolidation: Table<String, Table<String, ID>>
     }
 
+    // share object that users can see property of consolidation
     struct Bus has key, store {
-
+        id: UID,
+        owner: ID,
+        from: String,
+        to: String,
+        seed: vector<address>,
+        price: u64,
+        start: u64,
+        send: u64
     }
 
     struct Ticket has store, copy, drop {
-
+        bus: ID,
+        owner: address,
+        launch_time: u64,
+        seed_no: u64
     }
 
     struct AdminCap has key {
+        id: UID
 
     }
 
     // =================== Events ===================
 
     struct BusCreated has copy, drop {
-
+        owner: ID,
+        from: String,
+        to: String,
+        seed: vector<address>,
+        price: u64,
+        start: u64,
+        send: u64
     }
 
 
