@@ -193,14 +193,10 @@ module BusTicket::ticket {
         coin
     }
 
-    // return the available tickets from bus 
-    public fun get_tickets() {
-
-    }
-
+  
   
 
-
+  
 
 
 
@@ -209,6 +205,46 @@ module BusTicket::ticket {
  
 
     // === Public-View Functions ===
+    // get bus propertys
+    public fun get_bus(bus: &Bus) : (
+        ID,
+        u64,
+        String,
+        String,
+        u8,
+        vector<u8>,
+        u64,
+        u64,
+        u64
+        ) {
+            let balance_ = balance::value(&bus.balance);
+
+            (
+                bus.owner,
+                balance_,
+                bus.from,
+                bus.to,
+                bus.seed_num,
+                bus.taken,
+                bus.price,
+                bus.start,
+                bus.end
+            )
+    }
+    // return the taken seeds
+    public fun get_seeds(bus: &Bus) : vector<u8> {
+        bus.taken
+    }
+    // return the maximum seed number in the bus 
+    public fun get_seed_num(bus: &Bus) : u8{
+        bus.seed_num
+    }
+    // Return the IDs of bus objects pertaining to services between two cities
+    public fun get_consolidations(station: &Station, from: String, to: String) : vector<ID> {
+        let bag_ = table::borrow<String, Bag>(&station.consolidation, from);
+        let vector_ = bag::borrow<String, vector<ID>>(bag_, to);
+        *vector_
+    } 
 
     // === Admin Functions ===
 
