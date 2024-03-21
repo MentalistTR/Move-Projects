@@ -148,7 +148,7 @@ module BusTicket::ticket {
     public fun buy(bus: &mut Bus, coin: Coin<SUI>, seed_no_: u8, clock: &Clock, ctx: &mut TxContext) {
         assert!(coin::value(&coin) >= bus.price, ERROR_INVALID_PRICE);
         assert!(timestamp_ms(clock) < bus.end, ERROR_TIME_IS_UP);
-        assert!(seed_no_ <= bus.seed_num, ERROR_INVALID_SEED_NUMBER);
+        assert!(seed_no_ <= bus.seed_num && seed_no_ > 0, ERROR_INVALID_SEED_NUMBER);
         assert!(!vector::contains(&bus.taken, &seed_no_), ERROR_INVALID_SEED_NUMBER);
         // take the seed spot from table 
         table::add(&mut bus.seed, seed_no_, sender(ctx));

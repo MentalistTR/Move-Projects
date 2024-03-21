@@ -23,6 +23,7 @@ module BusTicket::test_ticket {
     const TEST_ADDRESS5: address = @0xF;
 
     #[test]
+    #[expected_failure(abort_code = ticket::ERROR_INVALID_SEED_NUMBER)]
     public fun test_new_bus() {
 
         let scenario_test = init_test_helper();
@@ -65,6 +66,58 @@ module BusTicket::test_ticket {
             assert_eq(ticket::get_bus_balance(&bus), 0);
 
             ts::return_shared(bus);
+        };
+        // but ticket 
+        next_tx(scenario, TEST_ADDRESS1);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 1;
+
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
+
+            ts::return_shared(bus);
+            ts::return_shared(time);
+        };
+        // buy ticket 
+        next_tx(scenario, TEST_ADDRESS2);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 21;
+
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
+
+            ts::return_shared(bus);
+            ts::return_shared(time);
+        };
+        // buy ticket 
+        next_tx(scenario, TEST_ADDRESS2);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 0;
+
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
+
+            ts::return_shared(bus);
+            ts::return_shared(time);
+        };
+        // buy ticket 
+        next_tx(scenario, TEST_ADDRESS2);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 1;
+
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
+
+            ts::return_shared(bus);
+            ts::return_shared(time);
         };
 
 
