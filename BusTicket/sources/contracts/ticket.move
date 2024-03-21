@@ -2,7 +2,7 @@ module BusTicket::ticket {
 
     // === Imports ===
 
-    use std::string::{Self, String};
+    use std::string::{String};
     use std::vector;
     //use std::debug;
 
@@ -11,9 +11,8 @@ module BusTicket::ticket {
     use sui::coin::{Self, Coin};
     use sui::sui::SUI;
     use sui::event;
-    use sui::tx_context::{Self, TxContext, sender};
+    use sui::tx_context::{TxContext, sender};
     use sui::table::{Self, Table};
-    use sui::table_vec::{Self, TableVec};
     use sui::bag::{Self, Bag};
     use sui::balance:: {Self, Balance};
     use sui::clock::{Clock, timestamp_ms};
@@ -182,7 +181,7 @@ module BusTicket::ticket {
         // remove from the seed
         table::remove(&mut bus.seed, ticket.seed_no);
         // set the index of ticket
-        let (bool_, index) = vector::index_of(&bus.taken, &ticket.seed_no);
+        let (_bool, index) = vector::index_of(&bus.taken, &ticket.seed_no);
         // remove from the vector 
         vector::remove(&mut bus.taken, index);
         // destroye the ticket 
@@ -194,12 +193,12 @@ module BusTicket::ticket {
     } 
 
     // After the bus departs, the admin can transfer the funds to the station and destroy the object
-    public fun close_bus(_: &AdminCap, station: &mut Station, bus: Bus, clock: &Clock, ctx: &mut TxContext) {
+    public fun close_bus(_: &AdminCap, station: &mut Station, bus: Bus, clock: &Clock) {
         assert!(timestamp_ms(clock) > bus.end, ERROR_TIME_NOT_COMPLETED);
         // destructure the bus object
         let Bus{id, owner, balance, from, to, seed_num: _, seed, taken, price: _, start: _, end: _} = bus;
         // merge these two balance
-        let num = balance::join(&mut station.balance, balance);
+        let _num = balance::join(&mut station.balance, balance);
         // destroye the bus object
         object::delete(id);
         // remove the table
@@ -218,13 +217,10 @@ module BusTicket::ticket {
         let bag_ = table::borrow_mut<String, Bag>(&mut station.consolidation, from);
         let vector_ = bag::borrow_mut<String, vector<ID>>(bag_, to);
 
-        let (bool_, index) = vector::index_of(vector_, &owner);
+        let (_bool, index) = vector::index_of(vector_, &owner);
         // remove from the vector 
         vector::remove( vector_, index);
     }
-
-  
-  
 
     // ============  Public-View Functions ============ 
 
@@ -239,20 +235,19 @@ module BusTicket::ticket {
         u64,
         u64,
         u64
-        ) {
-            let balance_ = balance::value(&bus.balance);
-
-            (
-                bus.owner,
-                balance_,
-                bus.from,
-                bus.to,
-                bus.seed_num,
-                bus.taken,
-                bus.price,
-                bus.start,
-                bus.end
-            )
+    ) {
+        let balance_ = balance::value(&bus.balance);
+        (
+            bus.owner,
+            balance_,
+            bus.from,
+            bus.to,
+            bus.seed_num,
+            bus.taken,
+            bus.price,
+            bus.start,
+            bus.end
+        )
     }
     // return the taken seeds
     public fun get_seeds(bus: &Bus) : vector<u8> {
@@ -268,11 +263,6 @@ module BusTicket::ticket {
         let vector_ = bag::borrow<String, vector<ID>>(bag_, to);
         *vector_
     } 
-
-    // === Admin Functions ===
-
-    // === Public-Friend Functions ===
-
     //  =================== Private Functions  ===================
 
     fun new_bag(station: &mut Station, from: String, ctx: &mut TxContext) {
@@ -287,43 +277,4 @@ module BusTicket::ticket {
         let Ticket {id, bus: _, owner: _, launch_time: _, seed_no: _} = ticket;
         object::delete(id);
     }
-
-    // === Test Functions ===
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
