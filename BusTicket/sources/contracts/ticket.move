@@ -277,4 +277,10 @@ module BusTicket::ticket {
         let Ticket {id, bus: _, owner: _, launch_time: _, seed_no: _} = ticket;
         object::delete(id);
     }
+
+     #[test_only]
+    // call the init function
+    public fun test_init(ctx: &mut TxContext) {
+        init( ctx);
+    }
 }
