@@ -278,9 +278,17 @@ module BusTicket::ticket {
         object::delete(id);
     }
 
-     #[test_only]
+    #[test_only]
     // call the init function
     public fun test_init(ctx: &mut TxContext) {
         init( ctx);
     }
+    // get bus balance
+    #[test_only]
+    public fun get_bus_balance(bus: &Bus) : u64 {
+        let value = balance::value(&bus.balance);
+        value
+    }
+
+
 }
