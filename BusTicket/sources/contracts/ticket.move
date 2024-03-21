@@ -31,14 +31,32 @@ module BusTicket::ticket {
 
     // === Structs ===
 
-    //share object that we keep ticket price 
+    /// The share object is where we keep the balance and bus IDs
+    /// 
+    /// # Arguments
+    /// 
+    /// * `balance` - Defines to which the money from the tickets is transferred after the bus departs.
+    /// * `consolidation` - A hashtable that holds the IDs of buses going from one province to another.
     struct Station has key, store {
         id: UID,
         balance: Balance<SUI>,
         consolidation: Table<String, Bag>
     }
 
-    // share object that users can see property of consolidation
+    /// The share object that users can buy ticket and read data
+    /// 
+    /// # Arguments
+    /// 
+    /// * `balance` - Defines the place where ticket prices are stored.
+    /// * `consolidation` - A hashtable that holds the IDs of buses going from one province to another.
+    /// * `from` - the place where the bus departs from.
+    /// * `to` - the place where the bus will move from.
+    /// * `seed_num` - The number of seeds in the bus
+    /// * `seed` - shows which addresses are in the seat number
+    /// * `taken` - The vector keeps taken seeds number
+    /// * `price` - The price of ticket
+    /// * `start` - the time when the tickets will go on sale
+    /// * `end` - the time the bus is scheduled to depart
     struct Bus has key, store {
         id: UID,
         owner: ID,
@@ -52,7 +70,13 @@ module BusTicket::ticket {
         start: u64,
         end: u64
     }
-
+    /// The object that refers the ticket
+    /// 
+    /// # Arguments
+    /// 
+    /// * `bus` - Defines the bus share object's ID
+    /// * `launch_time` - the time the bus is scheduled to depart
+    /// * `seed_no` - The seed number in the bus
     struct Ticket has key, store {
         id: UID,
         bus: ID,
@@ -60,7 +84,7 @@ module BusTicket::ticket {
         launch_time: u64,
         seed_no: u8
     }
-
+    // Admin capability
     struct AdminCap has key {
         id: UID
     }
@@ -90,7 +114,19 @@ module BusTicket::ticket {
 
     //  ===================Public-Mutative Functions  ===================
 
-    // owner of station should create new bus 
+    /// Admin can create a bus share object for users
+    /// 
+    /// # Arguments
+    /// 
+    /// * `station` - Refers the protocol share object
+    /// * `seeds` - The number of seeds in the bus
+    /// * `from` - the place where the bus departs from.
+    /// * `to` - the place where the bus will move from.
+    /// * `price` - The price of ticket
+    /// * `start` - the time when the tickets will go on sale
+    /// * `end` - the time the bus is scheduled to depart
+    /// * `price` - The price of ticket
+    /// * `clock` - Defines the share object for current time
     public fun new(
         _: &AdminCap,
         station: &mut Station,
@@ -143,8 +179,14 @@ module BusTicket::ticket {
             end: remaining_
         });
     }
-
-    // Users can buy tickets
+    /// Users can ticket from the share object
+    /// 
+    /// # Arguments
+    /// 
+    /// * `bus` -   The share object that users can buy ticket and read data
+    /// * `coin` - ticket Price that user has to pay
+    /// * `seed_no_` the seat number the user will choose
+    /// * `clock` - Defines the share object for current time
     public fun buy(bus: &mut Bus, coin: Coin<SUI>, seed_no_: u8, clock: &Clock, ctx: &mut TxContext) {
         assert!(coin::value(&coin) >= bus.price, ERROR_INVALID_PRICE);
         assert!(timestamp_ms(clock) < bus.end, ERROR_TIME_IS_UP);
@@ -167,8 +209,13 @@ module BusTicket::ticket {
             seed_no: seed_no_
         }, sender(ctx));   
     }
-
-    // Users can rebate tickets before an hour 
+    /// Users who have purchased tickets can return their tickets up to 1 hour before departure
+    /// 
+    /// # Arguments
+    /// 
+    /// * `ticket` - Defines the ticket for travelling
+    /// * `coin` - ticket Price that user has to pay
+    /// * `clock` - Defines the share object for current time
     public fun refund(
         bus: &mut Bus,
         ticket: Ticket,
@@ -192,7 +239,13 @@ module BusTicket::ticket {
         coin
     } 
 
-    // After the bus departs, the admin can transfer the funds to the station and destroy the object
+    /// After the bus departs, the admin can destroy the bus share object and transfer the funds to the station object
+    /// 
+    /// # Arguments
+    /// 
+    /// * `station` - Refers the protocol share object
+    /// * `bus` -   The share object that users can buy ticket and read data
+    /// * `clock` - Defines the share object for current time
     public fun close_bus(_: &AdminCap, station: &mut Station, bus: Bus, clock: &Clock) {
         assert!(timestamp_ms(clock) > bus.end, ERROR_TIME_NOT_COMPLETED);
         // destructure the bus object
