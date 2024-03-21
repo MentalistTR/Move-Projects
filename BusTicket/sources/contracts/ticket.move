@@ -21,12 +21,12 @@ module BusTicket::ticket {
     // === Friends ===
 
     // =================== Errors ===================
-    const ERROR_INVALID_PRICE : u64 = 0;
-    const ERROR_TIME_IS_UP : u64 = 1;
-    const ERROR_INVALID_SEED_NUMBER : u64 = 2;
+    const ERROR_INVALID_PRICE: u64 = 0;
+    const ERROR_TIME_IS_UP: u64 = 1;
+    const ERROR_INVALID_SEED_NUMBER: u64 = 2;
     const ERROR_INCORRECT_BUS: u64 = 3;
-    const ERROR_NOT_OWNER : u64 = 4;
-
+    const ERROR_NOT_OWNER: u64 = 4;
+    const ERROR_TIME_NOT_COMPLETED: u64 = 4;
 
     // === Constants ===
 
@@ -89,7 +89,7 @@ module BusTicket::ticket {
         transfer::transfer(AdminCap{id: object::new(ctx)}, sender(ctx));
     }
 
-    // === Public-Mutative Functions ===
+    //  ===================Public-Mutative Functions  ===================
 
     // owner of station should create new bus 
     public fun new(
@@ -193,6 +193,35 @@ module BusTicket::ticket {
         coin
     }
 
+    public fun close_bus(_: &AdminCap, station: &mut Station, bus: Bus, clock: &Clock, ctx: &mut TxContext) {
+        assert!(timestamp_ms(clock) > bus.end, ERROR_TIME_NOT_COMPLETED);
+        // destructure the bus object
+        let Bus{id, owner, balance, from, to, seed_num: _, seed, taken, price: _, start: _, end: _} = bus;
+        // merge these two balance
+        let num = balance::join(&mut station.balance, balance);
+        // destroye the bus object
+        object::delete(id);
+        // remove the table
+        let i:u64 = 0;
+        while(!vector::is_empty(&taken)) {
+            // get index from the vector 
+            let index = vector::remove(&mut taken, i);
+            // remove the i th element in table
+            table::remove(&mut seed, index);
+            // increase the index 
+            i = i + 1;
+        };
+        // Table is empty now. We can destroye it. 
+        table::destroy_empty(seed);
+        // remove the bus ID from station
+        let bag_ = table::borrow_mut<String, Bag>(&mut station.consolidation, from);
+        let vector_ = bag::borrow_mut<String, vector<ID>>(bag_, to);
+
+        let (bool_, index) = vector::index_of(vector_, &owner);
+        // remove from the vector 
+        vector::remove( vector_, index);
+    }
+
   
   
 
@@ -204,7 +233,8 @@ module BusTicket::ticket {
 
  
 
-    // === Public-View Functions ===
+    // ============  Public-View Functions ============ 
+
     // get bus propertys
     public fun get_bus(bus: &Bus) : (
         ID,
@@ -250,7 +280,7 @@ module BusTicket::ticket {
 
     // === Public-Friend Functions ===
 
-    // === Private Functions ===
+    //  =================== Private Functions  ===================
 
     fun new_bag(station: &mut Station, from: String, ctx: &mut TxContext) {
         if(!table::contains(&station.consolidation, from)) {
