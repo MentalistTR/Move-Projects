@@ -172,7 +172,7 @@ module BusTicket::ticket {
     // Users can rebate tickets before an hour 
     public fun refund(
         bus: &mut Bus,
-        ticket: &mut Ticket,
+        ticket: Ticket,
         clock: &Clock,
         ctx: &mut TxContext
     ) : Coin<SUI> {
@@ -185,6 +185,9 @@ module BusTicket::ticket {
         let (bool_, index) = vector::index_of(&bus.taken, &ticket.seed_no);
         // remove from the vector 
         vector::remove(&mut bus.taken, index);
+        // destroye the ticket 
+        destroye_ticket(ticket);
+        // take the ticket price and send it to buyer
         let balance_ = balance::split(&mut bus.balance, bus.price);
         let coin = coin::from_balance<SUI>(balance_, ctx);
         coin
@@ -220,6 +223,10 @@ module BusTicket::ticket {
         // add bag to the table
         table::add(&mut station.consolidation, from, bag_);
         };
+    }
+    fun destroye_ticket(ticket: Ticket) {
+        let Ticket {id, bus: _, owner: _, launch_time: _, seed_no: _} = ticket;
+        object::delete(id);
     }
 
     // === Test Functions ===
