@@ -26,7 +26,7 @@ module BusTicket::ticket {
     const ERROR_INVALID_SEED_NUMBER: u64 = 2;
     const ERROR_INCORRECT_BUS: u64 = 3;
     const ERROR_NOT_OWNER: u64 = 4;
-    const ERROR_TIME_NOT_COMPLETED: u64 = 4;
+    const ERROR_TIME_NOT_COMPLETED: u64 = 5;
 
     // === Constants ===
 
@@ -191,8 +191,9 @@ module BusTicket::ticket {
         let balance_ = balance::split(&mut bus.balance, bus.price);
         let coin = coin::from_balance<SUI>(balance_, ctx);
         coin
-    }
+    } 
 
+    // After the bus departs, the admin can transfer the funds to the station and destroy the object
     public fun close_bus(_: &AdminCap, station: &mut Station, bus: Bus, clock: &Clock, ctx: &mut TxContext) {
         assert!(timestamp_ms(clock) > bus.end, ERROR_TIME_NOT_COMPLETED);
         // destructure the bus object
@@ -224,14 +225,6 @@ module BusTicket::ticket {
 
   
   
-
-  
-
-
-
-
-
- 
 
     // ============  Public-View Functions ============ 
 
