@@ -202,12 +202,13 @@ module BusTicket::ticket {
         // destroye the bus object
         object::delete(id);
         // remove the table
-        let i:u64 = 0;
-        while(!vector::is_empty(&taken)) {
+        let i: u64 = 0;
+        let j: u64 = vector::length(&taken);
+        while(i < j) {
             // get index from the vector 
-            let index = vector::remove(&mut taken, i);
+            let index = vector::borrow(&mut taken, i);
             // remove the i th element in table
-            table::remove(&mut seed, index);
+            table::remove(&mut seed, *index);
             // increase the index 
             i = i + 1;
         };
@@ -278,6 +279,7 @@ module BusTicket::ticket {
         object::delete(id);
     }
 
+        // ============  Test-Only ============ 
     #[test_only]
     // call the init function
     public fun test_init(ctx: &mut TxContext) {
@@ -289,6 +291,10 @@ module BusTicket::ticket {
         let value = balance::value(&bus.balance);
         value
     }
-
-
+    // get station balance
+    #[test_only]
+    public fun get_station_balance(station: &Station) : u64 {
+        let value = balance::value(&station.balance);
+        value
+    }
 }

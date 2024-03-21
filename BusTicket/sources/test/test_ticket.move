@@ -228,14 +228,108 @@ module BusTicket::test_ticket {
         ts::end(scenario_test);
     }
 
+    #[test]
+    public fun test_close_bus() {
 
+        let scenario_test = init_test_helper();
+        let scenario = &mut scenario_test;
 
+        next_tx(scenario, ADMIN);
+        {
+            let cap = ts::take_from_sender<AdminCap>(scenario);
+            let station = ts::take_shared<Station>(scenario);
+            let time = clock::create_for_testing(ts::ctx(scenario));
 
+            let seeds_ :u8 = 20;
+            let from_ = string::utf8(b"Ankara");
+            let to_ = string::utf8(b"istanbul");
+            let price: u64 = 1_000_000_000;
+            let start: u64 = 60;
+            let end: u64 = 180;
 
+            ticket::new(
+                &cap,
+                &mut station,
+                seeds_,
+                from_,
+                to_,
+                price,
+                start,
+                end,
+                &time,
+                ts::ctx(scenario)
+            );
+            ts::return_to_sender(scenario, cap);
+            ts::return_shared(station);
+            clock::share_for_testing(time);        
+        };
+        // the balance of Bus must be zero
+        next_tx(scenario, ADMIN);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
 
+            assert_eq(ticket::get_bus_balance(&bus), 0);
 
+            ts::return_shared(bus);
+        };
+        // buy ticket 
+        next_tx(scenario, TEST_ADDRESS1);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 1;
 
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
 
+            ts::return_shared(bus);
+            ts::return_shared(time);
+        };
+        // buy ticket 
+        next_tx(scenario, TEST_ADDRESS2);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 2;
 
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
 
+            ts::return_shared(bus);
+            ts::return_shared(time);
+        };
+        // buy ticket 
+        next_tx(scenario, TEST_ADDRESS3);
+        {
+            let bus = ts::take_shared<Bus>(scenario);
+            let time = ts::take_shared<Clock>(scenario);
+            let coin = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+            let seed_no: u8 = 3;
+
+            ticket::buy(&mut bus, coin, seed_no, &time, ts::ctx(scenario));
+
+            ts::return_shared(bus);
+            ts::return_shared(time);
+        };
+        // close the bus
+        next_tx(scenario, ADMIN);
+        {
+            let cap = ts::take_from_sender<AdminCap>(scenario);
+            let station = ts::take_shared<Station>(scenario);
+            let bus = ts::take_shared<Bus>(scenario);
+            // increment time to 181 minute
+            let time = ts::take_shared<Clock>(scenario);
+            clock::increment_for_testing(&mut time, (181 * 60));
+            // close the bus and destroye it
+            ticket::close_bus(&cap, &mut station, bus, &time);
+
+            //balance should be equal to 3 SUI
+            assert_eq(ticket::get_station_balance(&station), 3_000_000_000);
+
+            ts::return_to_sender(scenario, cap);
+            ts::return_shared(station);
+            ts::return_shared(time);
+        };
+        ts::end(scenario_test);
+    }
 }
