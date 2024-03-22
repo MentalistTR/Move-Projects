@@ -5,7 +5,7 @@ module stakingContract::staking {
     use sui::transfer;
     use sui::object::{Self, UID};
     use sui::tx_context::{TxContext, sender};
-    use sui::coin::{Self, Coin, TreasuryCap};
+    use sui::coin::{Self, Coin};
     use sui::table::{Self, Table};
     use sui::balance::{Self, Balance};
     use sui::clock::{Clock, timestamp_ms};
@@ -50,11 +50,18 @@ module stakingContract::staking {
     // =================== Initializer ===================
 
     fun init(ctx: &mut TxContext) {
+        transfer::share_object(Pool{
+            id:object::new(ctx),
+            account_balances: table::new(ctx),
+            interest:1
+        });
+
         transfer::transfer(AdminCap{id: object::new(ctx)}, sender(ctx));
     }
 
     // === Public-Mutative Functions ===
 
+    // users should create an account for themself
     public fun new_account(ctx: &mut TxContext) {
         transfer::public_transfer(create_account(ctx), sender(ctx))
     }
@@ -73,21 +80,43 @@ module stakingContract::staking {
         assert!(quantity > 0, ERROR_INVALID_QUANTITIY);
         withdraw_asset(pool, quantity, account_cap, clock, ctx)
     }
-
-    public fun withdraw_reward(pool: &mut Pool, account_cap: &AccountCap, capwrapper: &mut CapWrapper, clock: &Clock, ctx: &mut TxContext) :Coin<MNT> {
+    // users can withdraw rewards
+    public fun withdraw_reward(
+        pool: &mut Pool,
+        account_cap: &AccountCap,
+        capwrapper: &mut CapWrapper,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) :Coin<MNT> {
         let rewards_ = calculateReward_withdraw(pool, clock, account_cap.owner);
         let coin = mint(capwrapper,rewards_, ctx);
         coin
     }
 
+
     // === Public-View Functions ===
 
+    // return the user balance and reward
+    public(friend) fun account_balance(
+        pool: &Pool,
+        owner: address
+    ): (u64, u64) {
+        // if the account is not created yet, directly return (0, 0) rather than abort
+        if (!table::contains(&pool.account_balances, owner)) {
+            return (0, 0)
+        };
+        let account_balances = table::borrow(&pool.account_balances, owner);
+        let avail_balance = balance::value(&account_balances.balance);
+        let reward = account_balances.rewards;
+        (avail_balance, reward)
+    }
 
 
     // === Admin Functions ===
 
-    public fun update_interest() {
-
+    // admin can change the rate
+    public fun update_interest(_:&AdminCap, pool: &mut Pool, rate: u64) {
+        pool.interest = rate;
     }
 
     // === Helper Functions ===
@@ -190,20 +219,7 @@ module stakingContract::staking {
         account.rewards = 0;
         mint
     }
-
-
-
-
+    
     // === Test Functions ===
-
-
-
-
-
-
-
-
-
-
 
 }
