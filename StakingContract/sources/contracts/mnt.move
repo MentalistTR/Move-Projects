@@ -53,7 +53,7 @@ module stakingContract::mnt {
   // === Test Functions ===  
 
   #[test_only]
-  public fun return_init_lira(ctx: &mut TxContext) {
+  public fun return_init_mnt(ctx: &mut TxContext) {
     init(MNT {}, ctx);
   }
 }
