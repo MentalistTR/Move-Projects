@@ -1,5 +1,5 @@
 /// LIRA Token is the stabil coin for turkish goverment lira
-module StakingContract::mnt {
+module stakingContract::mnt {
   use std::option;
 
   use sui::transfer;
