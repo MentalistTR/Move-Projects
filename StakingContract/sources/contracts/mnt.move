@@ -9,6 +9,8 @@ module stakingContract::mnt {
 
   // === Structs ===  
 
+    friend stakingContract::staking;
+
   // the stabil coin for turkish goverment lira
   struct MNT has drop {}
 
@@ -44,7 +46,7 @@ module stakingContract::mnt {
 
   // === Public-Friend Functions ===  
 
-  public fun mint(cap: &mut CapWrapper, value: u64, ctx: &mut TxContext): Coin<MNT> {
+  public(friend) fun mint(cap: &mut CapWrapper, value: u64, ctx: &mut TxContext): Coin<MNT> {
     coin::mint(&mut cap.cap, value, ctx)
   }
 
