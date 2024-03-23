@@ -11,6 +11,8 @@ module stakingContract::staking {
     use sui::clock::{Clock, timestamp_ms};
     use sui::sui::{SUI};
 
+    use std::debug;
+
     use stakingContract::mnt::{MNT, CapWrapper, mint};
 
     // === Errors ===
@@ -26,7 +28,7 @@ module stakingContract::staking {
     struct Pool has key, store {
        id: UID,
        account_balances: Table<address, Account>,
-       interest: u64
+       interest: u128
     }
 
     struct Account has store {
@@ -55,7 +57,6 @@ module stakingContract::staking {
             account_balances: table::new(ctx),
             interest:1
         });
-
         transfer::transfer(AdminCap{id: object::new(ctx)}, sender(ctx));
     }
 
@@ -72,13 +73,13 @@ module stakingContract::staking {
     // withdraw Sui from stake
     public fun withdraw(
         pool: &mut Pool,
-        quantity: u64,
         account_cap: &AccountCap,
         clock: &Clock,
+        quantity: u64,
         ctx: &mut TxContext
     ): Coin<SUI> {
         assert!(quantity > 0, ERROR_INVALID_QUANTITIY);
-        withdraw_asset(pool, quantity, account_cap, clock, ctx)
+        withdraw_asset(pool, account_cap, clock, quantity, ctx)
     }
     // users can withdraw rewards
     public fun withdraw_reward(
@@ -93,11 +94,10 @@ module stakingContract::staking {
         coin
     }
 
-
     // === Public-View Functions ===
 
     // return the user balance and reward
-    public(friend) fun account_balance(
+    public fun account_balance(
         pool: &Pool,
         owner: address
     ): (u64, u64) {
@@ -115,7 +115,7 @@ module stakingContract::staking {
     // === Admin Functions ===
 
     // admin can change the rate
-    public fun update_interest(_:&AdminCap, pool: &mut Pool, rate: u64) {
+    public fun update_interest(_:&AdminCap, pool: &mut Pool, rate: u128) {
         pool.interest = rate;
     }
 
@@ -139,9 +139,9 @@ module stakingContract::staking {
 
     public fun withdraw_asset(
         pool: &mut Pool,
-        quantity: u64,
         account_cap: &AccountCap,
         clock: &Clock,
+        quantity: u64,
         ctx: &mut TxContext
     ): Coin<SUI> {
         coin::from_balance(decrease_user_available_balance(pool, account_cap, quantity, clock), ctx)
@@ -198,20 +198,28 @@ module stakingContract::staking {
     }
 
     fun calculateReward(pool: &mut Pool , clock: &Clock, owner: address) : u64 {
-        let interest = pool.interest / 10000;
+        let interest = pool.interest;
         let account = borrow_mut_account_balance(pool, owner, clock);
         let duration_ = timestamp_ms(clock) - account.duration;
-        let reward_ = (balance::value(&account.balance)) * (duration_) * (interest);
-        account.duration = timestamp_ms(clock);
+        //debug::print(&duration_);
+        let balance = balance::value(&account.balance);
+        // debug::print(&balance);
+        let reward = ((balance as u128) * (duration_ as u128) as u64);
+        let reward_ = (((reward as u128) * interest / 1_000_000_000) as u64);
+        debug::print(&reward_);
+        account.duration = timestamp_ms(clock); 
         account.rewards = account.rewards + reward_;
         account.rewards
     }
 
     fun calculateReward_withdraw(pool: &mut Pool , clock: &Clock, owner: address) : u64 {
-        let interest = pool.interest / 10000;
+        let interest = pool.interest;
         let account = borrow_mut_account_balance(pool, owner, clock);
         let duration_ = timestamp_ms(clock) - account.duration;
-        let reward_ = (balance::value(&account.balance)) * (duration_) * (interest);
+        //debug::print(&duration_);
+        let balance = balance::value(&account.balance);
+        let reward_ = (((balance as u128) * interest / 1_000_000_000) as u64);
+       // debug::print(&reward_);
         account.duration = timestamp_ms(clock);
         account.rewards = account.rewards + reward_;
         let mint = account.rewards;

@@ -13,7 +13,30 @@ module stakingContract::helpers {
     const TEST_ADDRESS2: address = @0xC;
     const TEST_ADDRESS3: address = @0xD;
     const TEST_ADDRESS4: address = @0xE; 
-    const TEST_ADDRESS5: address = @0xF;   
+    const TEST_ADDRESS5: address = @0xF;
+
+    public fun new_accounts(scenario: &mut Scenario) {
+        next_tx(scenario, TEST_ADDRESS1);
+        {
+            staking::new_account(ts::ctx(scenario));
+        };
+        next_tx(scenario, TEST_ADDRESS2);
+        {
+            staking::new_account(ts::ctx(scenario));
+        };
+        next_tx(scenario, TEST_ADDRESS3);
+        {
+            staking::new_account(ts::ctx(scenario));
+        };
+        next_tx(scenario, TEST_ADDRESS4);
+        {
+            staking::new_account(ts::ctx(scenario));
+        };
+        next_tx(scenario, TEST_ADDRESS5);
+        {
+            staking::new_account(ts::ctx(scenario));
+        };
+    }
 
     public fun init_test_helper() : Scenario {
        let owner: address = @0xA;
