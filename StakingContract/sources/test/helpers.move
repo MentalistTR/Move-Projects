@@ -6,7 +6,9 @@ module stakingContract::helpers {
     use std::vector;
 
     use stakingContract::staking::{Self};
-    use stakingContract::mnt::{Self, return_init_mnt};
+    use stakingContract::admin::{test_init}; 
+    use stakingContract::mnt::{return_init_mnt};
+
 
     const ADMIN: address = @0xA;
     const TEST_ADDRESS1: address = @0xB;
@@ -38,15 +40,18 @@ module stakingContract::helpers {
         };
     }
 
-    // public fun init_test_helper() : Scenario {
-    //    let owner: address = @0xA;
-    //    let scenario_val = ts::begin(owner);
-    //    let scenario = &mut scenario_val;
+    public fun init_test_helper() : Scenario {
+       let owner: address = @0xA;
+       let scenario_val = ts::begin(owner);
+       let scenario = &mut scenario_val;
  
-    //    {
-    //         test_init(ts::ctx(scenario));
-    //    };
-    //    scenario_val
-    // }
+       {
+          test_init(ts::ctx(scenario));
+       };
+       {
+        return_init_mnt(ts::ctx(scenario));
+       };
+       scenario_val
+    }
 
 }

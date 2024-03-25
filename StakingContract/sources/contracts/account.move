@@ -22,6 +22,7 @@ module stakingContract::account {
 
     friend stakingContract::reward;
     friend stakingContract::staking;
+    friend stakingContract::test_stake;
 
     // === Structs ===
 
@@ -43,17 +44,6 @@ module stakingContract::account {
        id: UID,
        account_balances: Table<address, Account>,
        interest: u128
-    }
-
-    /// Return the owner of an AccountCap
-    public(friend) fun account_owner(account_cap: &AccountCap): address {
-        account_cap.owner
-    }
-
-    public(friend) fun create_account(ctx: &mut TxContext) : AccountCap {
-        let id = object::new(ctx);
-        let owner = object::uid_to_address(&id);
-        AccountCap { id, owner }
     }
 
     public fun get_duration(account: &Account) :u64 {
@@ -81,16 +71,6 @@ module stakingContract::account {
         account.owner
     }
 
-    // create new pool 
-    public fun new(ctx: &mut TxContext) : Pool {
-        let pool = Pool{
-            id:object::new(ctx),
-            account_balances: table::new(ctx),
-            interest:100
-            };
-        pool
-    }
-
     public fun borrow_pool(pool: &Pool) : &Pool {
         pool
     }
@@ -101,6 +81,27 @@ module stakingContract::account {
 
     public fun get_interest(pool: &Pool) : u128 {
         pool.interest
+    }
+
+    /// Return the owner of an AccountCap
+    public(friend) fun account_owner(account_cap: &AccountCap): address {
+        account_cap.owner
+    }
+
+    public(friend) fun create_account(ctx: &mut TxContext) : AccountCap {
+        let id = object::new(ctx);
+        let owner = object::uid_to_address(&id);
+        AccountCap { id, owner }
+    }
+
+    // create new pool 
+    public fun new(ctx: &mut TxContext) : Pool {
+        let pool = Pool{
+            id:object::new(ctx),
+            account_balances: table::new(ctx),
+            interest:10
+            };
+        pool
     }
 
     // return the user balance and reward
