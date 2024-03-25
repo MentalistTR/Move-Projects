@@ -26,6 +26,8 @@ module stakingContract::account {
 
     // === Structs ===
 
+
+
     struct Account has store {
        balance: Balance<SUI>,
        rewards: u64, 
@@ -46,7 +48,7 @@ module stakingContract::account {
        interest: u128
     }
 
-    public fun get_duration(account: &Account) :u64 {
+    public fun get_duration(account: &Account) : u64 {
         account.duration
     }
 
@@ -58,15 +60,6 @@ module stakingContract::account {
         account.rewards
     }
 
-    public fun set_account(account: &mut Account, duration_: u64, reward: u64) {
-        account.duration = duration_;
-        account.rewards = account.rewards + reward;
-    }
-
-    public fun set_reward(account: &mut Account) {
-        account.rewards = 0;
-    }
-
     public fun get_account_cap(account: &AccountCap) : address {
         account.owner
     }
@@ -75,12 +68,21 @@ module stakingContract::account {
         pool
     }
 
+    public fun get_interest(pool: &Pool) : u128 {
+        pool.interest
+    }
+
     public fun borrow_mut_pool(pool: &mut Pool) : &mut Pool {
         pool
     }
 
-    public fun get_interest(pool: &Pool) : u128 {
-        pool.interest
+    public fun set_account(account: &mut Account, duration_: u64, reward: u64) {
+        account.duration = duration_;
+        account.rewards = account.rewards + reward;
+    }
+
+    public fun set_reward(account: &mut Account) {
+        account.rewards = 0;
     }
 
     /// Return the owner of an AccountCap

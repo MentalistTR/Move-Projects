@@ -6,6 +6,9 @@ module stakingContract::admin {
     use sui::object::{Self, UID};
     use sui::tx_context::{TxContext, sender};
 
+    use stakingContract::account::{Pool};
+
+
     struct AdminCap has key {
         id: UID
     }
@@ -16,7 +19,9 @@ module stakingContract::admin {
         }, sender(ctx));
     }
 
-
+    public fun set_interest(pool: &mut Pool, num: u64) {
+        pool.interest;
+    }
 
 
     #[test_only]
