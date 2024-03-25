@@ -22,6 +22,7 @@ module stakingContract::account {
 
     friend stakingContract::reward;
     friend stakingContract::staking;
+
     // === Structs ===
 
     struct Account has store {
@@ -37,7 +38,7 @@ module stakingContract::account {
         owner: address
     }
 
-     // Protocol pool to users can stake SUI
+    // Protocol pool to users can stake SUI
     struct Pool has key, store {
        id: UID,
        account_balances: Table<address, Account>,
@@ -80,11 +81,7 @@ module stakingContract::account {
         account.owner
     }
 
-    
-
-   
     // create new pool 
-
     public fun new(ctx: &mut TxContext) : Pool {
         let pool = Pool{
             id:object::new(ctx),
@@ -121,7 +118,7 @@ module stakingContract::account {
         (avail_balance, reward)
     }
 
-    public(friend) fun  borrow_mut_account_balance(
+    public(friend) fun  borrow_mut_account(
         pool: &mut Pool,
         owner: address,
         clock: &Clock,
@@ -137,7 +134,7 @@ module stakingContract::account {
       
     }
 
-    public(friend) fun  borrow_mut_account_balance2(
+    public(friend) fun  borrow_mut_account_balance(
         pool: &mut Pool,
         owner: address,
         clock: &Clock,

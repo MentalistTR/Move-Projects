@@ -15,12 +15,15 @@ module stakingContract::staking {
 
     use stakingContract::mnt::{MNT, CapWrapper, mint};
     use stakingContract::account::{Self, Account, AccountCap, Pool};
-    use stakingContract::reward::{Self, calculateReward, calculateReward_withdraw};
+    use stakingContract::reward::{Self, calculate_reward, calculate_reward_withdraw};
     // === Errors ===
 
     const ERROR_INSUFFICENT_COIN: u64 = 0;
     const ERROR_INVALID_QUANTITIY: u64 = 1;
 
+    // === Constants ===
+
+    const SCALAR: u64 = 1_000_000_000;
 
     // === Public-Mutative Functions ===
 
@@ -51,7 +54,7 @@ module stakingContract::staking {
         clock: &Clock,
         ctx: &mut TxContext
     ) :Coin<MNT> {
-        let rewards_ = calculateReward_withdraw(pool, clock, account::get_account_cap(account_cap));
+        let rewards_ = calculate_reward_withdraw(pool, clock, account::get_account_cap(account_cap));
         let coin = mint(capwrapper,rewards_, ctx);
         coin
     }
@@ -92,8 +95,8 @@ module stakingContract::staking {
         quantity: Balance<SUI>,
         clock: &Clock
     ) {
-        calculateReward(pool, clock, owner);
-        let account = account::borrow_mut_account_balance2(pool, owner, clock );
+        calculate_reward(pool, clock, owner);
+        let account = account::borrow_mut_account_balance(pool, owner, clock );
         balance::join( account, quantity);
     }
 
@@ -103,8 +106,8 @@ module stakingContract::staking {
         quantity: u64,
         clock: &Clock
     ): Balance<SUI> {
-        calculateReward(pool, clock, account::get_account_cap(account_cap));
-        let account = account::borrow_mut_account_balance2(pool, account::get_account_cap(account_cap), clock );
+        calculate_reward(pool, clock, account::get_account_cap(account_cap));
+        let account = account::borrow_mut_account_balance(pool, account::get_account_cap(account_cap), clock );
         balance::split( account, quantity)
     }
 }
