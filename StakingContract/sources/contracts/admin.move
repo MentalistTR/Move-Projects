@@ -19,7 +19,7 @@ module stakingContract::admin {
         }, sender(ctx));
     }
 
-    public fun set_interest(pool: &mut Pool, num: u64) {
+    public fun set_interest(_: &AdminCap, pool: &mut Pool, num: u128) {
         pool.interest;
     }
 
