@@ -9,32 +9,21 @@ module stakingContract::helpers {
     use stakingContract::admin::{test_init}; 
     use stakingContract::mnt::{return_init_mnt};
 
-
     const ADMIN: address = @0xA;
-    const TEST_ADDRESS1: address = @0xB;
-    const TEST_ADDRESS2: address = @0xC;
-    const TEST_ADDRESS3: address = @0xD;
-    const TEST_ADDRESS4: address = @0xE; 
-    const TEST_ADDRESS5: address = @0xF;
+    const ALICE: address = @0xB;
+    const BOB: address = @0xC;
+    const DIANA: address = @0xD;
 
     public fun new_accounts(scenario: &mut Scenario) {
-        next_tx(scenario, TEST_ADDRESS1);
+        next_tx(scenario, ALICE);
         {
             staking::new_account(ts::ctx(scenario));
         };
-        next_tx(scenario, TEST_ADDRESS2);
+        next_tx(scenario, BOB);
         {
             staking::new_account(ts::ctx(scenario));
         };
-        next_tx(scenario, TEST_ADDRESS3);
-        {
-            staking::new_account(ts::ctx(scenario));
-        };
-        next_tx(scenario, TEST_ADDRESS4);
-        {
-            staking::new_account(ts::ctx(scenario));
-        };
-        next_tx(scenario, TEST_ADDRESS5);
+        next_tx(scenario, DIANA);
         {
             staking::new_account(ts::ctx(scenario));
         };

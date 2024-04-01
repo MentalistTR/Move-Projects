@@ -21,8 +21,7 @@ module stakingContract::admin {
     public fun set_interest(_: &AdminCap, pool: &mut Pool, num: u128) {
         account::new_interest(pool, num);
     }
-
-
+    
     #[test_only]
     public fun test_init(ctx: &mut TxContext) {
         init(ctx);

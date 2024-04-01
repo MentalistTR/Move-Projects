@@ -21,9 +21,8 @@ module stakingContract::account {
 
     friend stakingContract::reward;
     friend stakingContract::staking;
-    friend stakingContract::test_stake;
     friend stakingContract::admin;
-
+    
     // === Structs ===
     
     struct Account has store {
@@ -88,7 +87,7 @@ module stakingContract::account {
     }
 
     /// Return the owner of an AccountCap
-    public(friend) fun account_owner(account_cap: &AccountCap): address {
+    public fun account_owner(account_cap: &AccountCap): address {
         account_cap.owner
     }
 

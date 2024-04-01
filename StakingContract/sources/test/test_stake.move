@@ -19,11 +19,7 @@ module stakingContract::test_stake {
     use stakingContract::helpers::{Self, init_test_helper};
 
     const ADMIN: address = @0xA;
-    const TEST_ADDRESS1: address = @0xB;
-    const TEST_ADDRESS2: address = @0xC;
-    const TEST_ADDRESS3: address = @0xD;
-    const TEST_ADDRESS4: address = @0xE; 
-    const TEST_ADDRESS5: address = @0xF;
+    const ALICE: address = @0xB;
 
     #[test]
     public fun test_deposit() {
@@ -32,13 +28,13 @@ module stakingContract::test_stake {
 
         helpers::new_accounts(scenario);
 
-        next_tx(scenario, TEST_ADDRESS1);
+        next_tx(scenario, ADMIN);
         {
             let pool = account::new(ts::ctx(scenario));
             transfer::public_share_object(pool);
         };
-
-        next_tx(scenario, TEST_ADDRESS1);
+        // deposit 1000 SUI
+        next_tx(scenario, ALICE);
         {
             let pool = ts::take_shared<Pool>(scenario);
             let account_cap = ts::take_from_sender<AccountCap>(scenario);
@@ -48,15 +44,15 @@ module stakingContract::test_stake {
             staking::deposit(&mut pool, coin, &clock, &account_cap);
 
             let (balance, reward) = account::account_balance(&pool, account::account_owner(&account_cap));
-            assert_eq(balance, 1000000000000);
+            assert_eq(balance, 1000_000_000_000);
             assert_eq(reward, 0);
 
             clock::share_for_testing(clock);
             ts::return_to_sender(scenario, account_cap);
             ts::return_shared(pool);
         };
-
-        next_tx(scenario, TEST_ADDRESS1); 
+        // Withdraw SUI
+        next_tx(scenario, ALICE); 
         {
             let pool = ts::take_shared<Pool>(scenario);
             let account_cap = ts::take_from_sender<AccountCap>(scenario);
@@ -66,7 +62,7 @@ module stakingContract::test_stake {
             let amount: u64 = 1000_000_000_000;
 
             let coin = staking::withdraw(&mut pool, &account_cap, &clock, amount, ts::ctx(scenario));
-            transfer::public_transfer(coin, TEST_ADDRESS1);
+            transfer::public_transfer(coin, ALICE);
 
             let (balance, reward) = account::account_balance(&pool, account::account_owner(&account_cap));
             assert_eq(balance, 0);
@@ -76,8 +72,8 @@ module stakingContract::test_stake {
             ts::return_to_sender(scenario, account_cap);
             ts::return_shared(pool);
         };
-
-        next_tx(scenario, TEST_ADDRESS1);
+        // withdraw the reward Token MNT
+        next_tx(scenario, ALICE);
         {
             let pool = ts::take_shared<Pool>(scenario);
             let account_cap = ts::take_from_sender<AccountCap>(scenario);
@@ -86,15 +82,15 @@ module stakingContract::test_stake {
 
             let coin = staking::withdraw_reward(&mut pool, &account_cap, &mut capwrapper, &clock, ts::ctx(scenario));
             assert_eq(coin::value(&coin), 2_737_909_262);
-            transfer::public_transfer(coin, TEST_ADDRESS1);
+            transfer::public_transfer(coin, ALICE);
 
             ts::return_shared(clock);
             ts::return_to_sender(scenario, account_cap);
             ts::return_shared(pool);
             ts::return_shared(capwrapper);
         };
-
-        next_tx(scenario, TEST_ADDRESS1);
+        // check the balance 
+        next_tx(scenario, ALICE);
         {
 
             let pool = ts::take_shared<Pool>(scenario);
@@ -111,22 +107,79 @@ module stakingContract::test_stake {
             ts::return_to_sender(scenario, account_cap);
             ts::return_shared(pool);
         };
-
-        next_tx(scenario, TEST_ADDRESS1);
+        // deposit 100000 SUI 
+        next_tx(scenario, ALICE);
         {
             let pool = ts::take_shared<Pool>(scenario);
             let account_cap = ts::take_from_sender<AccountCap>(scenario);
             let clock = ts::take_shared<Clock>(scenario);
-            let coin = mint_for_testing<SUI>(1000_000_000_000, ts::ctx(scenario)); 
+            let coin = mint_for_testing<SUI>(100000_000_000_000, ts::ctx(scenario)); 
 
             staking::deposit(&mut pool, coin, &clock, &account_cap);
 
             let (balance, reward) = account::account_balance(&pool, account::account_owner(&account_cap));
-            assert_eq(balance, 1000000000000);
+            assert_eq(balance, 100000_000_000_000);
             assert_eq(reward, 0);
 
+            ts::return_shared(clock);
+            ts::return_to_sender(scenario, account_cap);
+            ts::return_shared(pool);
+        };
+
+        // Withdraw 100000 SUI
+        next_tx(scenario, ALICE); 
+        {
+            let pool = ts::take_shared<Pool>(scenario);
+            let account_cap = ts::take_from_sender<AccountCap>(scenario);
+            let clock = ts::take_shared<Clock>(scenario);
+            // increment the time 1 day
+            clock::increment_for_testing(&mut clock, 86400 * 12);
+            let amount: u64 = 100000_000_000_000;
+
+            let coin = staking::withdraw(&mut pool, &account_cap, &clock, amount, ts::ctx(scenario));
+            transfer::public_transfer(coin, ALICE);
+
+            let (balance, reward) = account::account_balance(&pool, account::account_owner(&account_cap));
+            assert_eq(balance, 0);
+            assert_eq(reward, 3285_491_115_325);
 
             ts::return_shared(clock);
+            ts::return_to_sender(scenario, account_cap);
+            ts::return_shared(pool);
+        };
+
+        // withdraw the reward Token MNT
+        next_tx(scenario, ALICE);
+        {
+            let pool = ts::take_shared<Pool>(scenario);
+            let account_cap = ts::take_from_sender<AccountCap>(scenario);
+            let clock = ts::take_shared<Clock>(scenario);
+            let capwrapper = ts::take_shared<CapWrapper>(scenario);
+
+            let coin = staking::withdraw_reward(&mut pool, &account_cap, &mut capwrapper, &clock, ts::ctx(scenario));
+            assert_eq(coin::value(&coin), 3285_491_115_325);
+            transfer::public_transfer(coin, ALICE);
+
+            ts::return_shared(clock);
+            ts::return_to_sender(scenario, account_cap);
+            ts::return_shared(pool);
+            ts::return_shared(capwrapper);
+        };
+
+         // check the balance 
+        next_tx(scenario, ALICE);
+        {
+            let pool = ts::take_shared<Pool>(scenario);
+            let account_cap = ts::take_from_sender<AccountCap>(scenario);
+
+            let balance = ts::take_from_sender<Coin<MNT>>(scenario);
+            assert_eq(coin::value(&balance), 3285_491_115_325);
+
+            let (balance_, reward) = account::account_balance(&pool, account::account_owner(&account_cap));
+            assert_eq(balance_, 0);
+            assert_eq(reward, 0);
+
+            ts::return_to_sender(scenario, balance);
             ts::return_to_sender(scenario, account_cap);
             ts::return_shared(pool);
         };
