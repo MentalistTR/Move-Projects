@@ -1,4 +1,3 @@
-/// LIRA Token is the stabil coin for turkish goverment lira
 module stakingContract::reward {
 
     // === Imports ===
@@ -18,6 +17,7 @@ module stakingContract::reward {
     friend stakingContract::staking;
 
     const SCALAR: u128 = 1_000_000_000;
+    const YEAR: u128 = 31556926;
 
 
     // === Errors ===
@@ -32,7 +32,7 @@ module stakingContract::reward {
       
         let balance = account::get_balance(account);
     
-        let reward = ((balance as u128) * (interest * (duration_ as u128))) / SCALAR;
+        let reward = ((balance as u128) * ((duration_ as u128)) / ((YEAR)));
         account::set_account(account, timestamp_ms(clock), (reward as u64));
         account::get_rewards(account)
     }
@@ -44,7 +44,7 @@ module stakingContract::reward {
         let duration_ = timestamp_ms(clock) - account::get_duration(account);
         let balance = account::get_balance(account);
 
-        let reward = ((balance as u128) * (interest * (duration_ as u128))) / SCALAR;
+        let reward = ((balance as u128) * ((duration_ as u128)) / (YEAR) );
 
         account::set_account(account, timestamp_ms(clock), (reward as u64));
         let mint =  account::get_rewards(account);

@@ -6,11 +6,8 @@ module stakingContract::mnt {
   use sui::tx_context::TxContext;
   use sui::coin::{Self, Coin, TreasuryCap};
 
-  // === Structs ===  
+  friend stakingContract::staking;
 
-    friend stakingContract::staking;
-
-  // the stabil coin for turkish goverment lira
   struct MNT has drop {}
 
   // wrapped the TreasuryCap

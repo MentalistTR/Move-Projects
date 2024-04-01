@@ -1,4 +1,3 @@
-/// LIRA Token is the stabil coin for turkish goverment lira
 module stakingContract::admin {
 
     // === Imports ===
@@ -6,7 +5,7 @@ module stakingContract::admin {
     use sui::object::{Self, UID};
     use sui::tx_context::{TxContext, sender};
 
-    use stakingContract::account::{Pool};
+    use stakingContract::account::{Self as account, Pool};
 
 
     struct AdminCap has key {
@@ -20,7 +19,7 @@ module stakingContract::admin {
     }
 
     public fun set_interest(_: &AdminCap, pool: &mut Pool, num: u128) {
-        pool.interest;
+        account::new_interest(pool, num);
     }
 
 

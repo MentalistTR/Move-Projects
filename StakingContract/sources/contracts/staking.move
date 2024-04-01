@@ -1,4 +1,3 @@
-/// LIRA Token is the stabil coin for turkish goverment lira
 module stakingContract::staking {
 
     // === Imports ===
@@ -20,10 +19,6 @@ module stakingContract::staking {
 
     const ERROR_INSUFFICENT_COIN: u64 = 0;
     const ERROR_INVALID_QUANTITIY: u64 = 1;
-
-    // === Constants ===
-
-    const SCALAR: u64 = 1_000_000_000;
 
     // === Public-Mutative Functions ===
 
